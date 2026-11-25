@@ -1,0 +1,48 @@
+{
+  "name": "zipzap-mcp",
+  "version": "1.0.0",
+  "description": "Zero-hosting Model Context Protocol (MCP) server for ZipZap DEX Aggregator on Kaia, Base, Arbitrum, and Solana",
+  "main": "dist/index.js",
+  "bin": {
+    "zipzap-mcp": "./bin/zipzap-mcp.js"
+  },
+  "files": [
+    "dist",
+    "bin",
+    "instructions.md",
+    "llms.txt"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "zipzap",
+    "dex",
+    "aggregator",
+    "defi",
+    "defai",
+    "ai-agent",
+    "solana",
+    "base",
+    "kaia",
+    "arbitrum"
+  ],
+  "author": "ZipZap Protocol",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.6.0",
+    "@solana/web3.js": "^1.95.8",
+    "viem": "^2.21.54",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
+  }
+}

@@ -1,0 +1,37 @@
+# ZipZap Protocol (DEX Aggregator) - LLM Reference
+
+> Clean, machine-readable specifications for AI agents interacting with ZipZap contracts without frontend requirements.
+
+## Overview
+- Project: ZipZap
+- Category: Multi-Chain DEX & Convex Split Aggregator
+- Chains: Kaia (8217), Base (8453), Arbitrum (42161), Solana (101)
+- Platform Tax: 0.00%
+- Fee Architecture: Surplus Capture (100% of positive slippage retained, 0% taken from quoted output)
+
+## MCP Server Connection
+Agents can run this MCP server via zero-hosting local execution:
+```json
+{
+  "mcpServers": {
+    "zipzap": {
+      "command": "npx",
+      "args": ["-y", "zipzap-mcp"]
+    }
+  }
+}
+```
+
+## Available MCP Tools
+- `zipzap_get_chains`: Returns supported chains, router addresses, and RPCs.
+- `zipzap_get_tokens`: Returns token contracts and decimals for a given chainId.
+- `zipzap_get_wallet_balance`: Reads native and token balances via public RPCs.
+- `zipzap_get_quote`: Simulates split-routing and returns expected output and min output.
+- `zipzap_build_swap_tx`: Generates calldata for EVM ZipZapRouter.sol or serialized Solana VersionedTransaction.
+- `zipzap_crosschain_quote`: Returns bridge routing plans across EVM and Solana.
+
+## On-Chain Contract Registry
+- Kaia Router: 0x49d20E59Aa31Ba04F1FA6CD9a374A2d01A4228C6
+- Base Router: 0x6A59007DB02466Bb421c5F1C7A9B6bd33ffC1Ad7
+- Arbitrum Router: 0x34608F078dfa55bdc87592a970f6B259C8712aE7
+- Solana: Multi-DEX SVM Engine (Jupiter v1 / lite-api)
