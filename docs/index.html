@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en" class="dark bg-black text-zinc-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZipZap — AI Agent MCP Protocol</title>
+  <meta name="description" content="Model Context Protocol (MCP) server for ZipZap DEX Aggregator across Kaia, Base, Arbitrum, and Solana. Zero front-end fees.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              emerald: '#34D399',
+              dark: '#09090B',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #000000;
+      color: #fafafa;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      letter-spacing: -0.01em;
+    }
+    ::selection {
+      background-color: #27272a;
+      color: #ffffff;
+    }
+    /* Custom scrollbar matching ZipZap Webapp */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+  </style>
+</head>
+<body class="min-h-screen bg-black flex flex-col justify-between antialiased selection:bg-zinc-800 selection:text-white">
+
+  <!-- Top Navigation Bar matching ZipZap Webapp -->
+  <header class="border-b border-zinc-900 bg-black/90 backdrop-blur-md sticky top-0 z-40 px-6 lg:px-16 py-3.5 flex items-center justify-between">
+    <div class="flex items-center space-x-6">
+      <a href="#" class="flex items-center space-x-2.5 group cursor-pointer text-left">
+        <!-- Exact ZipZap Brand SVG Logo -->
+        <svg class="w-8 h-8 shrink-0 transition-transform duration-200 group-hover:scale-105" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0.5" y="0.5" width="31" height="31" rx="8.5" fill="#09090B" stroke="#27272A" />
+          <path d="M7 7H23.5L13.5 17H8.5L15 10.5H7V7Z" fill="#FAFAFA" />
+          <path d="M25 25H8.5L18.5 15H23.5L17 21.5H25V25Z" fill="#34D399" />
+        </svg>
+        <div class="flex items-center space-x-2">
+          <span class="font-bold text-base sm:text-lg tracking-tight text-white">
+            Zip<span class="text-emerald-400">Zap</span>
+          </span>
+          <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-zinc-400 tracking-wider">
+            MCP SERVER
+          </span>
+        </div>
+      </a>
+
+      <!-- Institutional Navigation Links -->
+      <nav class="hidden md:flex items-center space-x-4 text-xs font-medium text-zinc-400">
+        <span class="text-white bg-zinc-900 px-3 py-1.5 rounded-lg border border-zinc-800">Agent Interface</span>
+        <a href="#contracts" class="hover:text-white transition px-2 py-1.5">Contracts</a>
+        <a href="#tools" class="hover:text-white transition px-2 py-1.5">Tool Reference</a>
+        <a href="instructions.md" class="hover:text-white transition px-2 py-1.5">Agent Specs</a>
+      </nav>
+    </div>
+
+    <div class="flex items-center space-x-3">
+      <a href="https://github.com/your-username/zipzap-mcp" target="_blank" class="flex items-center space-x-2 text-xs font-mono px-3 py-1.5 rounded-lg bg-zinc-950 border border-zinc-800 hover:border-zinc-700 text-zinc-300 transition">
+        <!-- GitHub Stroke Icon -->
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
+          <path d="M9 18c-4.51 2-5-2-7-2" />
+        </svg>
+        <span>GitHub</span>
+      </a>
+
+      <div class="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span>0.00% Tax</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <main class="max-w-6xl mx-auto px-6 py-12 lg:py-16 w-full space-y-16">
+    <section class="space-y-6 text-center max-w-3xl mx-auto">
+      <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-zinc-950 border border-zinc-800 text-zinc-400 text-xs font-mono">
+        <!-- Shield Icon -->
+        <svg class="w-3.5 h-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+          <path d="m9 12 2 2 4-4" />
+        </svg>
+        <span>Institutional DeFAI Execution Layer</span>
+      </div>
+
+      <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
+        Direct Smart Contract Access for <span class="text-emerald-400">AI Agents</span>
+      </h1>
+
+      <p class="text-sm sm:text-base text-zinc-400 leading-relaxed max-w-2xl mx-auto">
+        Zero frontend dependencies. Connect Claude Desktop, Cursor, Antigravity, or autonomous agent frameworks directly to ZipZap's atomic split router on Kaia, Base, Arbitrum, and Solana.
+      </p>
+
+      <div class="flex flex-wrap justify-center gap-3 pt-2">
+        <a href="#quickstart" class="px-5 py-2.5 bg-emerald-400 hover:bg-emerald-300 text-black font-semibold rounded-xl text-xs sm:text-sm transition flex items-center space-x-2">
+          <!-- Terminal Icon -->
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="4 17 10 11 4 5" />
+            <line x1="12" y1="19" x2="20" y2="19" />
+          </svg>
+          <span>Connect Your Agent</span>
+        </a>
+
+        <a href="llms.txt" target="_blank" class="px-5 py-2.5 bg-zinc-950 hover:bg-zinc-900 border border-zinc-800 text-zinc-300 font-medium rounded-xl text-xs sm:text-sm transition flex items-center space-x-2">
+          <!-- FileCode Icon -->
+          <svg class="w-4 h-4 text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+            <polyline points="14 2 14 8 20 8" />
+            <polyline points="10 13 8 15 10 17" />
+            <polyline points="14 13 16 15 14 17" />
+          </svg>
+          <span>llms.txt Specification</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Key Metrics Grid matching ZipZap SwapApp Style -->
+    <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div class="bg-zinc-950 border border-zinc-900 rounded-xl p-4 space-y-1">
+        <div class="text-[11px] text-zinc-500 font-mono uppercase tracking-wider flex items-center justify-between">
+          <span>Platform Fee</span>
+          <!-- Zap Icon -->
+          <svg class="w-3.5 h-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+          </svg>
+        </div>
+        <div class="text-xl sm:text-2xl font-bold text-emerald-400 font-mono">0.00%</div>
+        <div class="text-[11px] text-zinc-400 font-mono">Zero upfront aggregator tax</div>
+      </div>
+
+      <div class="bg-zinc-950 border border-zinc-900 rounded-xl p-4 space-y-1">
+        <div class="text-[11px] text-zinc-500 font-mono uppercase tracking-wider flex items-center justify-between">
+          <span>Fee Economics</span>
+          <!-- Shield Icon -->
+          <svg class="w-3.5 h-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+          </svg>
+        </div>
+        <div class="text-xl sm:text-2xl font-bold text-white font-mono">Surplus Capture</div>
+        <div class="text-[11px] text-zinc-400 font-mono">100% positive slippage captured</div>
+      </div>
+
+      <div class="bg-zinc-950 border border-zinc-900 rounded-xl p-4 space-y-1">
+        <div class="text-[11px] text-zinc-500 font-mono uppercase tracking-wider flex items-center justify-between">
+          <span>Supported Chains</span>
+          <!-- Layers Icon -->
+          <svg class="w-3.5 h-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 2 7 12 12 22 7 12 2" />
+            <polyline points="2 17 12 22 22 17" />
+            <polyline points="2 12 12 17 22 12" />
+          </svg>
+        </div>
+        <div class="text-xl sm:text-2xl font-bold text-white font-mono">4 Networks</div>
+        <div class="text-[11px] text-zinc-400 font-mono">Kaia, Base, Arbitrum & Solana</div>
+      </div>
+
+      <div class="bg-zinc-950 border border-zinc-900 rounded-xl p-4 space-y-1">
+        <div class="text-[11px] text-zinc-500 font-mono uppercase tracking-wider flex items-center justify-between">
+          <span>Server Hosting</span>
+          <!-- Cpu Icon -->
+          <svg class="w-3.5 h-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="4" width="16" height="16" rx="2" />
+            <rect x="9" y="9" width="6" height="6" />
+            <path d="M15 2v2M9 2v2M15 20v2M9 20v2M2 15h2M2 9h2M20 15h2M20 9h2" />
+          </svg>
+        </div>
+        <div class="text-xl sm:text-2xl font-bold text-white font-mono">Zero VPS</div>
+        <div class="text-[11px] text-zinc-400 font-mono">Runs via stdio / npx on agent host</div>
+      </div>
+    </section>
+
+    <!-- Quickstart / Config Snippets -->
+    <section id="quickstart" class="bg-zinc-950 border border-zinc-900 rounded-2xl p-6 space-y-5">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-900 pb-4">
+        <div>
+          <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+            <!-- Terminal Icon -->
+            <svg class="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="4 17 10 11 4 5" />
+              <line x1="12" y1="19" x2="20" y2="19" />
+            </svg>
+            <span>Agent Setup Configuration</span>
+          </h2>
+          <p class="text-xs text-zinc-500 mt-0.5">Copy and paste into your MCP configuration file.</p>
+        </div>
+
+        <!-- Platform Tabs -->
+        <div class="flex items-center space-x-1 bg-black p-1 rounded-xl border border-zinc-800 text-xs font-mono">
+          <button onclick="setTab('claude')" id="tab-claude" class="px-3 py-1.5 rounded-lg bg-zinc-900 text-white font-medium border border-zinc-700 transition">Claude Desktop</button>
+          <button onclick="setTab('cursor')" id="tab-cursor" class="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white transition">Cursor / Windsurf</button>
+          <button onclick="setTab('cli')" id="tab-cli" class="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white transition">Direct CLI</button>
+        </div>
+      </div>
+
+      <!-- Code Box -->
+      <div class="relative group">
+        <pre id="code-display" class="bg-black border border-zinc-900 rounded-xl p-4 font-mono text-xs text-zinc-300 overflow-x-auto leading-relaxed"></pre>
+        <button onclick="copySnippet()" class="absolute top-3 right-3 flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs text-zinc-300 transition">
+          <svg id="copy-icon" class="w-3.5 h-3.5 text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+          </svg>
+          <span id="copy-text">Copy</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Verified Deployed Contracts -->
+    <section id="contracts" class="space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+            <!-- Layers Icon -->
+            <svg class="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 2 7 12 12 22 7 12 2" />
+              <polyline points="2 17 12 22 22 17" />
+              <polyline points="2 12 12 17 22 12" />
+            </svg>
+            <span>Verified Smart Contracts</span>
+          </h2>
+          <p class="text-xs text-zinc-500 mt-0.5">Immutable on-chain execution routers and state settlement managers.</p>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto bg-zinc-950 border border-zinc-900 rounded-2xl">
+        <table class="w-full text-left text-xs text-zinc-300">
+          <thead class="bg-black/60 text-zinc-500 uppercase font-mono text-[10px] tracking-wider border-b border-zinc-900">
+            <tr>
+              <th class="px-5 py-3.5">Network</th>
+              <th class="px-5 py-3.5">Chain ID</th>
+              <th class="px-5 py-3.5">ZipZapRouter Contract</th>
+              <th class="px-5 py-3.5">Fee Manager</th>
+              <th class="px-5 py-3.5">Public RPC</th>
+              <th class="px-5 py-3.5 text-right">Explorer</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-zinc-900 font-mono">
+            <!-- Kaia -->
+            <tr class="hover:bg-zinc-900/40 transition">
+              <td class="px-5 py-4 flex items-center space-x-2.5 font-sans font-medium text-white">
+                <!-- Kaia Icon -->
+                <svg class="w-5 h-5 shrink-0" viewBox="0 0 512 512" fill="none">
+                  <circle cx="256" cy="256" r="256" fill="#040404" />
+                  <path d="M258.7 180.3c0-12 9.8-21.7 21.8-21.7h39.1v-52.9h-39.1c-41.4 0-75 33.4-75 74.6 0 10.7 2.3 21 6.4 30.2-32.2 13.5-53.5 42.3-58.5 78.7-5.8 39.9 10.3 83 45.3 103.9 31.3 19.6 80.1 18.3 106.5-8.9v18h54.4V202h-79.1c-10.7 0-20.5-9.7-20.5-21.7zm47.8 74.6v50.2c-.1 27.8-22.7 50.3-50.5 50.2-27.8.1-50.4-22.4-50.5-50.2.1-27.8 22.7-50.3 50.5-50.2h50.5z" fill="#BFF007" />
+                </svg>
+                <span>Kaia Mainnet</span>
+              </td>
+              <td class="px-5 py-4 text-emerald-400">8217</td>
+              <td class="px-5 py-4 text-zinc-300">0x49d20E59Aa31Ba04F1FA6CD9a374A2d01A4228C6</td>
+              <td class="px-5 py-4 text-zinc-500">0x18D834...8eda5</td>
+              <td class="px-5 py-4 text-zinc-500">public-en.node.kaia.io</td>
+              <td class="px-5 py-4 text-right font-sans">
+                <a href="https://kaiascan.io/address/0x49d20E59Aa31Ba04F1FA6CD9a374A2d01A4228C6" target="_blank" class="inline-flex items-center space-x-1 text-emerald-400 hover:text-emerald-300">
+                  <span>Kaiascan</span>
+                  <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+                </a>
+              </td>
+            </tr>
+
+            <!-- Base -->
+            <tr class="hover:bg-zinc-900/40 transition">
+              <td class="px-5 py-4 flex items-center space-x-2.5 font-sans font-medium text-white">
+                <!-- Base Icon -->
+                <svg class="w-5 h-5 shrink-0" viewBox="0 0 111 111" fill="none">
+                  <circle cx="55.5" cy="55.5" r="55.5" fill="#0052FF" />
+                  <path d="M55.5 90C74.5538 90 90 74.5538 90 55.5C90 36.4462 74.5538 21 55.5 21C36.9464 21 21.8021 35.6322 21.0342 53.9875H66.8625V57.0125H21.0342C21.8021 75.3678 36.9464 90 55.5 90Z" fill="#FFFFFF" />
+                </svg>
+                <span>Base Mainnet</span>
+              </td>
+              <td class="px-5 py-4 text-emerald-400">8453</td>
+              <td class="px-5 py-4 text-zinc-300">0x6A59007DB02466Bb421c5F1C7A9B6bd33ffC1Ad7</td>
+              <td class="px-5 py-4 text-zinc-500">0x8D381d...1e9F6</td>
+              <td class="px-5 py-4 text-zinc-500">mainnet.base.org</td>
+              <td class="px-5 py-4 text-right font-sans">
+                <a href="https://basescan.org/address/0x6A59007DB02466Bb421c5F1C7A9B6bd33ffC1Ad7" target="_blank" class="inline-flex items-center space-x-1 text-emerald-400 hover:text-emerald-300">
+                  <span>Basescan</span>
+                  <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+                </a>
+              </td>
+            </tr>
+
+            <!-- Arbitrum -->
+            <tr class="hover:bg-zinc-900/40 transition">
+              <td class="px-5 py-4 flex items-center space-x-2.5 font-sans font-medium text-white">
+                <!-- Arbitrum Icon -->
+                <svg class="w-5 h-5 shrink-0" viewBox="0 0 32 32" fill="none">
+                  <circle cx="16" cy="16" r="16" fill="#28A0F0" />
+                  <path d="M20.9 19.8l-2.4-6.6c-.2-.6-.8-1-1.4-1h-2.2c-.6 0-1.2.4-1.4 1l-2.4 6.6c-.3.8.3 1.6 1.1 1.6h2.2l1.3-3.6h2.4l1.3 3.6h2.3c.8 0 1.4-.8 1.1-1.6zm-3.8-3.9h-2.2l1.1-3.1 1.1 3.1z" fill="#fff" />
+                  <path d="M23.5 20.8l-3-8.2c-.4-1.1-1.5-1.8-2.6-1.8h-3.8c-1.1 0-2.2.7-2.6 1.8l-3 8.2c-.5 1.5.6 3 2.2 3h1.8l1.3-3.6h4.4l1.3 3.6h1.8c1.6 0 2.7-1.5 2.2-3z" fill="none" stroke="#fff" stroke-width="1.2" />
+                </svg>
+                <span>Arbitrum One</span>
+              </td>
+              <td class="px-5 py-4 text-emerald-400">42161</td>
+              <td class="px-5 py-4 text-zinc-300">0x34608F078dfa55bdc87592a970f6B259C8712aE7</td>
+              <td class="px-5 py-4 text-zinc-500">0x5A3222...0713</td>
+              <td class="px-5 py-4 text-zinc-500">arb1.arbitrum.io/rpc</td>
+              <td class="px-5 py-4 text-right font-sans">
+                <a href="https://arbiscan.io/address/0x34608F078dfa55bdc87592a970f6B259C8712aE7" target="_blank" class="inline-flex items-center space-x-1 text-emerald-400 hover:text-emerald-300">
+                  <span>Arbiscan</span>
+                  <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+                </a>
+              </td>
+            </tr>
+
+            <!-- Solana -->
+            <tr class="hover:bg-zinc-900/40 transition">
+              <td class="px-5 py-4 flex items-center space-x-2.5 font-sans font-medium text-white">
+                <!-- Solana Icon -->
+                <svg class="w-5 h-5 shrink-0" viewBox="0 0 32 32" fill="none">
+                  <circle cx="16" cy="16" r="16" fill="#0F0F13" />
+                  <defs>
+                    <linearGradient id="solGrad2" x1="6" y1="24" x2="26" y2="8" gradientUnits="userSpaceOnUse">
+                      <stop stop-color="#9945FF" />
+                      <stop offset="0.5" stop-color="#14F195" />
+                      <stop offset="1" stop-color="#00C2FF" />
+                    </linearGradient>
+                  </defs>
+                  <path d="M9.6 20.6c.2-.2.4-.3.7-.3h14.4c.4 0 .6.5.3.8l-2.3 2.3c-.2.2-.4.3-.7.3H7.6c-.4 0-.6-.5-.3-.8l2.3-2.3z" fill="url(#solGrad2)" />
+                  <path d="M9.6 8.6c.2-.2.4-.3.7-.3h14.4c.4 0 .6.5.3.8l-2.3 2.3c-.2.2-.4.3-.7.3H7.6c-.4 0-.6-.5-.3-.8l2.3-2.3z" fill="url(#solGrad2)" />
+                  <path d="M22.7 14.6c-.2-.2-.4-.3-.7-.3H7.6c-.4 0-.6.5-.3.8l2.3 2.3c.2.2.4.3.7.3h14.4c.4 0 .6-.5.3-.8l-2.3-2.3z" fill="url(#solGrad2)" />
+                </svg>
+                <span>Solana Mainnet</span>
+              </td>
+              <td class="px-5 py-4 text-emerald-400">101</td>
+              <td class="px-5 py-4 text-zinc-400 font-sans italic">Atomic SVM Multi-DEX Engine</td>
+              <td class="px-5 py-4 text-emerald-400">0.00% Platform Fee</td>
+              <td class="px-5 py-4 text-zinc-500">api.mainnet-beta.solana.com</td>
+              <td class="px-5 py-4 text-right font-sans">
+                <a href="https://solscan.io" target="_blank" class="inline-flex items-center space-x-1 text-emerald-400 hover:text-emerald-300">
+                  <span>Solscan</span>
+                  <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- MCP Tool Capabilities -->
+    <section id="tools" class="space-y-4">
+      <div>
+        <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+          <!-- Code Icon -->
+          <svg class="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 18 22 12 16 6" />
+            <polyline points="8 6 2 12 8 18" />
+          </svg>
+          <span>Exposed MCP Tools</span>
+        </h2>
+        <p class="text-xs text-zinc-500 mt-0.5">Callable by any agent via standardized JSON-RPC messages.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        <!-- Tool 1 -->
+        <div class="bg-zinc-950 border border-zinc-900 rounded-xl p-4 space-y-2 hover:border-zinc-800 transition">
+          <div class="flex items-center justify-between">
+            <span class="font-mono text-xs font-semibold text-emerald-400">zipzap_get_quote</span>
+            <span class="text-[10px] font-mono text-zinc-500 uppercase">Routing</span>
+          </div>
+          <p class="text-xs text-zinc-400 leading-relaxed">
+            Fetches optimal split swap quotes across DEXs on EVM or Solana. Calculates expected output, price impact, and fee breakdown.
+          </p>
+        </div>
+
+        <!-- Tool 2 -->
+        <div class="bg-zinc-950 border border-zinc-900 rounded-xl p-4 space-y-2 hover:border-zinc-800 transition">
+          <div class="flex items-center justify-between">
+            <span class="font-mono text-xs font-semibold text-emerald-400">zipzap_build_swap_tx</span>
+            <span class="text-[10px] font-mono text-zinc-500 uppercase">Execution</span>
+          </div>
+          <p class="text-xs text-zinc-400 leading-relaxed">
+            Constructs unsigned EVM calldata for <code class="text-zinc-300">ZipZapRouter.swap()</code> or serialized Solana <code class="text-zinc-300">VersionedTransaction</code>.
+          </p>
+        </div>
+
+        <!-- Tool 3 -->
+        <div class="bg-zinc-950 border border-zinc-900 rounded-xl p-4 space-y-2 hover:border-zinc-800 transition">
+          <div class="flex items-center justify-between">
+            <span class="font-mono text-xs font-semibold text-emerald-400">zipzap_get_wallet_balance</span>
+            <span class="text-[10px] font-mono text-zinc-500 uppercase">State</span>
+          </div>
+          <p class="text-xs text-zinc-400 leading-relaxed">
+            Reads native ETH/KAIA/SOL and ERC20 or SPL token balances directly from decentralized RPC endpoints.
+          </p>
+        </div>
+
+        <!-- Tool 4 -->
+        <div class="bg-zinc-950 border border-zinc-900 rounded-xl p-4 space-y-2 hover:border-zinc-800 transition">
+          <div class="flex items-center justify-between">
+            <span class="font-mono text-xs font-semibold text-emerald-400">zipzap_get_tokens</span>
+            <span class="text-[10px] font-mono text-zinc-500 uppercase">Registry</span>
+          </div>
+          <p class="text-xs text-zinc-400 leading-relaxed">
+            Returns verified token mints, symbols, decimals, and contract addresses across all supported chains.
+          </p>
+        </div>
+
+        <!-- Tool 5 -->
+        <div class="bg-zinc-950 border border-zinc-900 rounded-xl p-4 space-y-2 hover:border-zinc-800 transition">
+          <div class="flex items-center justify-between">
+            <span class="font-mono text-xs font-semibold text-emerald-400">zipzap_get_chains</span>
+            <span class="text-[10px] font-mono text-zinc-500 uppercase">Discovery</span>
+          </div>
+          <p class="text-xs text-zinc-400 leading-relaxed">
+            Discovers active chain IDs, block explorer URLs, canonical wrapped native addresses, and active RPC providers.
+          </p>
+        </div>
+
+        <!-- Tool 6 -->
+        <div class="bg-zinc-950 border border-zinc-900 rounded-xl p-4 space-y-2 hover:border-zinc-800 transition">
+          <div class="flex items-center justify-between">
+            <span class="font-mono text-xs font-semibold text-emerald-400">zipzap_crosschain_quote</span>
+            <span class="text-[10px] font-mono text-zinc-500 uppercase">Bridges</span>
+          </div>
+          <p class="text-xs text-zinc-400 leading-relaxed">
+            Plans atomic multi-hop swaps across disparate networks via LayerZero and Stargate bridge relays.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer matching ZipZap style -->
+  <footer class="border-t border-zinc-900 bg-black px-6 lg:px-16 py-8 mt-16 text-xs text-zinc-500 flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div class="flex items-center space-x-2">
+      <!-- ZipZap Small Logo -->
+      <svg class="w-5 h-5 shrink-0" viewBox="0 0 32 32" fill="none">
+        <rect x="0.5" y="0.5" width="31" height="31" rx="8.5" fill="#09090B" stroke="#27272A" />
+        <path d="M7 7H23.5L13.5 17H8.5L15 10.5H7V7Z" fill="#FAFAFA" />
+        <path d="M25 25H8.5L18.5 15H23.5L17 21.5H25V25Z" fill="#34D399" />
+      </svg>
+      <span>© 2026 ZipZap Protocol. MIT License.</span>
+    </div>
+
+    <div class="flex items-center space-x-6 text-zinc-400">
+      <a href="instructions.md" class="hover:text-white transition">Agent Instructions</a>
+      <a href="llms.txt" class="hover:text-white transition">llms.txt</a>
+      <a href="https://github.com/your-username/zipzap-mcp" target="_blank" class="hover:text-white transition">GitHub Repo</a>
+    </div>
+  </footer>
+
+  <!-- Script for interactive tab switcher and copy functionality -->
+  <script>
+    const snippets = {
+      claude: `// claude_desktop_config.json
+{
+  "mcpServers": {
+    "zipzap": {
+      "command": "npx",
+      "args": ["-y", "zipzap-mcp"]
+    }
+  }
+}`,
+      cursor: `// Cursor / Windsurf Settings -> MCP Servers
+Name: zipzap
+Type: command
+Command: npx -y zipzap-mcp`,
+      cli: `# Run directly in terminal or subshell:
+npx -y zipzap-mcp
+
+# Or install from GitHub:
+npx -y github:your-username/zipzap-mcp`
+    };
+
+    let currentTab = 'claude';
+
+    function setTab(tab) {
+      currentTab = tab;
+      ['claude', 'cursor', 'cli'].forEach(t => {
+        const el = document.getElementById('tab-' + t);
+        if (t === tab) {
+          el.className = 'px-3 py-1.5 rounded-lg bg-zinc-900 text-white font-medium border border-zinc-700 transition';
+        } else {
+          el.className = 'px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white transition';
+        }
+      });
+      document.getElementById('code-display').textContent = snippets[tab];
+    }
+
+    function copySnippet() {
+      const text = snippets[currentTab];
+      navigator.clipboard.writeText(text).then(() => {
+        const copyText = document.getElementById('copy-text');
+        copyText.textContent = 'Copied!';
+        setTimeout(() => {
+          copyText.textContent = 'Copy';
+        }, 2000);
+      });
+    }
+
+    // Initialize default tab
+    setTab('claude');
+  </script>
+</body>
+</html>
