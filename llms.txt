@@ -1,6 +1,7 @@
 # ZipZap Protocol (DEX Aggregator) - LLM Reference
 
 > Clean, machine-readable specifications for AI agents interacting with ZipZap contracts without frontend requirements.
+> For the comprehensive technical specification with complete ABIs and routing rules, see [llms-full.txt](llms-full.txt).
 
 ## Overview
 - Project: ZipZap
