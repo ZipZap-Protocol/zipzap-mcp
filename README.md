@@ -43,7 +43,7 @@ Add a new MCP server in Settings:
 
 ### 3. Local Run / Direct Execution
 ```bash
-git clone https://github.com/your-username/zipzap-mcp.git
+git clone https://github.com/ZipZap-Protocol/zipzap-mcp.git
 cd zipzap-mcp
 npm install
 npm run build

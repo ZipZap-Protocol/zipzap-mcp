@@ -34,6 +34,11 @@
   ],
   "author": "ZipZap Protocol",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZipZap-Protocol/zipzap-mcp.git"
+  },
+  "homepage": "https://zipzap-protocol.github.io/zipzap-mcp",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.6.0",
     "@solana/web3.js": "^1.95.8",
