@@ -1,0 +1,110 @@
+# ZipZap Protocol (Multi-Chain DEX Aggregator) — Full AI Agent Specification
+
+> This document contains comprehensive machine-readable technical details for AI agents, LLMs, and DeFAI bots interacting with ZipZap smart contracts.
+
+## 1. Executive Summary
+- Project: ZipZap
+- Architecture: Decentralized Exchange Aggregator with Convex Split Routing & Surplus-Capture Economics
+- Supported Networks:
+  - Kaia Mainnet (EVM Chain ID: 8217)
+  - Base Mainnet (EVM Chain ID: 8453)
+  - Arbitrum One (EVM Chain ID: 42161)
+  - Solana Mainnet (SVM Chain ID: 101)
+- Platform Fee on Quoted Return: 0.00% (No upfront deductions or aggregator tax)
+- Surplus Capture Policy: When execution yields more tokens than quoted target output, positive slippage is captured by ZipZapFeeManager. If output matches or is lower (within slippage tolerance), user receives 100% of net tokens with 0% fee.
+
+---
+
+## 2. On-Chain Deployed Smart Contracts
+
+### Kaia Mainnet (Chain ID: 8217)
+- ZipZapRouter: `0x49d20E59Aa31Ba04F1FA6CD9a374A2d01A4228C6`
+- ZipZapFeeManager: `0x18D834334DEd9292d15603d8dbA44c7a89F8eda5`
+- Canonical Wrapped Native (WKAIA): `0x19Aac5f612f524B754CA7e7c41cbFa2E981A4432`
+- Public RPC: `https://public-en.node.kaia.io`
+- Block Explorer: `https://kaiascan.io`
+
+### Base Mainnet (Chain ID: 8453)
+- ZipZapRouter: `0x6A59007DB02466Bb421c5F1C7A9B6bd33ffC1Ad7`
+- ZipZapFeeManager: `0x8D381d45B801A338C4229174ad9B00081b61e9F6`
+- Canonical Wrapped Native (WETH): `0x4200000000000000000000000000000000000006`
+- Public RPC: `https://mainnet.base.org`
+- Block Explorer: `https://basescan.org`
+
+### Arbitrum One (Chain ID: 42161)
+- ZipZapRouter: `0x34608F078dfa55bdc87592a970f6B259C8712aE7`
+- ZipZapFeeManager: `0x5A3222FAFcD4704957Ed33Aa6E5372A205Ae0713`
+- Canonical Wrapped Native (WETH): `0x82aF49447D8a07e3bd95BD0d56f35241523fBab1`
+- Public RPC: `https://arb1.arbitrum.io/rpc`
+- Block Explorer: `https://arbiscan.io`
+
+### Solana Mainnet (Chain ID: 101)
+- Aggregation Engine: Atomic multi-DEX split router across Raydium CLMM/CPMM, Orca Whirlpools, Meteora DLMM, and Phoenix.
+- Protocol Platform Fee: 0.00%
+- Native SOL Mint: `So11111111111111111111111111111111111111112`
+- Public RPC: `https://api.mainnet-beta.solana.com`
+- Block Explorer: `https://solscan.io`
+
+---
+
+## 3. ABI Interface for ZipZapRouter.sol
+
+```solidity
+interface IZipZapRouter {
+    enum ProtocolType { V2, V3, CUSTOM }
+
+    struct SwapStep {
+        ProtocolType protocol;
+        address pool;
+        address tokenIn;
+        address tokenOut;
+        bytes data; // e.g. pool fee tier for V3 (0x0001f4 = 500 bps)
+    }
+
+    struct Route {
+        uint256 shareBps; // 10000 = 100%
+        SwapStep[] steps;
+    }
+
+    struct SwapParams {
+        address tokenIn;
+        address tokenOut;
+        uint256 amountIn;
+        uint256 minOutputAmount;      // Reverts if received < minOutputAmount
+        uint256 quotedExpectedOutput; // Quoted target output
+        address recipient;
+        uint256 deadline;
+        Route[] routes;
+    }
+
+    function swap(SwapParams calldata params) external payable returns (uint256 finalUserOutput, uint256 feeCharged);
+}
+```
+
+---
+
+## 4. MCP Tools Reference for Agents
+
+1. `zipzap_get_chains`: Discovers supported chains, verified contract routers, and RPC nodes.
+2. `zipzap_get_tokens`: Lists verified symbols, addresses, and decimals on any chain.
+3. `zipzap_get_wallet_balance`: Reads native and token balances for any EVM or Solana address.
+4. `zipzap_get_quote`: Calculates split route quotes, expected output, and price impact.
+5. `zipzap_build_swap_tx`: Generates unsigned transaction calldata (`to`, `data`, `value`) for EVM or serialized Solana transaction.
+6. `zipzap_crosschain_quote`: Cross-chain routing plan via Stargate and LayerZero.
+
+---
+
+## 5. Quick Connect Configuration
+
+```json
+{
+  "mcpServers": {
+    "zipzap": {
+      "command": "npx",
+      "args": ["-y", "zipzap-mcp"]
+    }
+  }
+}
+```
+Repository: https://github.com/ZipZap-Protocol/zipzap-mcp
+Documentation: https://zipzap-protocol.github.io/zipzap-mcp

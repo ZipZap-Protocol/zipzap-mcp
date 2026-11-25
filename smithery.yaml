@@ -1,0 +1,9 @@
+# Smithery configuration for ZipZap MCP
+# See https://smithery.ai/docs/config#smitheryyaml
+startCommand:
+  type: stdio
+  config:
+    command: npx
+    args:
+      - -y
+      - zipzap-mcp
