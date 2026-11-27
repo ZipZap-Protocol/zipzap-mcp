@@ -13,7 +13,7 @@
 
 ZipZap MCP allows **any AI agent** (Claude Desktop, Cursor, Antigravity, Eliza/ai16z, LangChain, AutoGPT) to discover routes, check balances, get split swap quotes, and build execution calldata for ZipZap's on-chain contracts **without ever visiting the frontend**.
 
-- **Zero-Hosting Architecture:** Runs via stdio JSON-RPC locally on the agent's machine (`npx zipzap-mcp`). You do **not** need a VPS or cloud server.
+- **Zero-Hosting Architecture:** Runs via stdio JSON-RPC locally on the agent's machine (`npx -y @zipzap-protocol/mcp`). You do **not** need a VPS or cloud server.
 - **Direct RPC Connectivity:** Connects directly to decentralized public RPCs (Kaia, Base, Arbitrum, Solana).
 - **0.00% Platform Fee on Quoted Amount:** Surplus-capture fee economics ensure agents receive 100% of the quoted target return.
 
@@ -29,7 +29,7 @@ Add this to your `claude_desktop_config.json`:
   "mcpServers": {
     "zipzap": {
       "command": "npx",
-      "args": ["-y", "zipzap-mcp"]
+      "args": ["-y", "@zipzap-protocol/mcp"]
     }
   }
 }
@@ -39,7 +39,7 @@ Add this to your `claude_desktop_config.json`:
 Add a new MCP server in Settings:
 - **Name:** `zipzap`
 - **Type:** `command`
-- **Command:** `npx -y zipzap-mcp`
+- **Command:** `npx -y @zipzap-protocol/mcp`
 
 ### 3. Local Run / Direct Execution
 ```bash

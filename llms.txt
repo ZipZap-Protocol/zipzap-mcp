@@ -17,7 +17,7 @@ Agents can run this MCP server via zero-hosting local execution:
   "mcpServers": {
     "zipzap": {
       "command": "npx",
-      "args": ["-y", "zipzap-mcp"]
+      "args": ["-y", "@zipzap-protocol/mcp"]
     }
   }
 }
