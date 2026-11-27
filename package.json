@@ -1,6 +1,6 @@
 {
   "name": "@zipzap-protocol/mcp",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "type": "module",
   "description": "Zero-hosting Model Context Protocol (MCP) server for ZipZap DEX Aggregator on Kaia, Base, Arbitrum, and Solana",
   "publishConfig": {
@@ -45,8 +45,7 @@
   "homepage": "https://zipzap-protocol.github.io/zipzap-mcp",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.6.0",
-    "@solana/web3.js": "^1.95.8",
-    "viem": "^2.21.54",
+    "@zipzap-protocol/sdk": "^1.1.0",
     "zod": "^3.24.1"
   },
   "devDependencies": {
