@@ -56,29 +56,36 @@ export async function getWalletBalances(params: {
         },
       ];
 
-      // Query SPL tokens
-      try {
-        const tokenAccounts = await connection.getParsedTokenAccountsByOwner(pubkey, {
-          programId: new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
-        });
+      // Query classic SPL and Token-2022 accounts
+      const splPrograms = [
+        new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+        new PublicKey("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"),
+      ];
 
-        for (const account of tokenAccounts.value) {
-          const parsedInfo = account.account.data.parsed.info;
-          const mint = parsedInfo.mint;
-          const tokenAmount = parsedInfo.tokenAmount;
-          const knownToken = resolveToken(chainId, mint);
+      for (const programId of splPrograms) {
+        try {
+          const tokenAccounts = await connection.getParsedTokenAccountsByOwner(pubkey, {
+            programId,
+          });
 
-          if (Number(tokenAmount.uiAmount || 0) > 0) {
-            balances.push({
-              symbol: knownToken?.symbol || "SPL",
-              address: mint,
-              balance: tokenAmount.uiAmountString,
-              decimals: tokenAmount.decimals,
-            });
+          for (const account of tokenAccounts.value) {
+            const parsedInfo = account.account.data.parsed.info;
+            const mint = parsedInfo.mint;
+            const tokenAmount = parsedInfo.tokenAmount;
+            const knownToken = resolveToken(chainId, mint);
+
+            if (Number(tokenAmount.uiAmount || 0) > 0) {
+              balances.push({
+                symbol: knownToken?.symbol || "SPL",
+                address: mint,
+                balance: tokenAmount.uiAmountString,
+                decimals: tokenAmount.decimals,
+              });
+            }
           }
+        } catch {
+          // Continue if one program query fails
         }
-      } catch {
-        // Fall back to just native SOL if SPL query fails
       }
 
       return { chainId, walletAddress, balances };

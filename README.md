@@ -60,8 +60,10 @@ npm start
 | `zipzap_get_tokens` | List verified tokens, symbols, decimals, and contract addresses for a chain. |
 | `zipzap_get_wallet_balance` | Check native and ERC20 / SPL token balances for any target wallet via public RPCs. |
 | `zipzap_get_quote` | Fetch optimal multi-DEX split routes and quoted return with 0.00% upfront fee. |
-| `zipzap_build_swap_tx` | Construct unsigned calldata for `ZipZapRouter.sol` or serialized Solana transaction. |
-| `zipzap_crosschain_quote` | Plan multi-hop cross-chain bridge + DEX routing between supported networks. |
+| `zipzap_build_swap_tx` | Construct unsigned calldata for `ZipZapRouter.sol` (with live ERC-20 allowance check) or serialized Solana transaction. |
+| `zipzap_crosschain_quote` | Fetch live cross-chain swap quotes (Across / Stargate / LI.FI) across Kaia, Base, Arbitrum, and Solana. |
+| `zipzap_simulate_swap` | Dry-run a built EVM (`eth_call` + gas estimate) or Solana (`simulateTransaction`) swap before signing. |
+| `zipzap_get_tx_status` | Check on-chain confirmation status and decode `ZipZapRouter` `SwapExecuted` logs (actual output & surplus captured). |
 
 ---
 

@@ -39,6 +39,10 @@ When an agent needs to execute or suggest a swap for a user:
   - **EVM:** Returns `to`, `data`, `value`, and checks if an ERC20 `approval` transaction is required before `swap`.
   - **Solana:** Returns a base64 `serializedTransaction` (`VersionedTransaction`).
 
-### Step 4: Execution
+### Step 4: Pre-Flight Simulation & Execution
+- Call `zipzap_simulate_swap(...)` to dry-run the built transaction (`eth_call` + gas estimate on EVM, `simulateTransaction` on Solana) before signing or broadcasting.
 - **Autonomous Agent:** Signs the transaction using an encrypted agent keypair / session wallet and broadcasts to the network RPC.
 - **Human-in-the-Loop:** Presents the exact calldata, expected output, and gas estimate to the user to sign via wallet.
+
+### Step 5: Verify On-Chain Settlement
+- Call `zipzap_get_tx_status(chainId, txHash)` to confirm execution and decode `SwapExecuted` logs (actual user output, fee charged, surplus captured).

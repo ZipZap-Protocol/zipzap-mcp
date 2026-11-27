@@ -7,6 +7,7 @@ import { getSupportedChains, getTokensForChain } from "./tools/tokens.js";
 import { getWalletBalances } from "./tools/balances.js";
 import { getSwapQuote, planCrossChainSwap } from "./tools/quote.js";
 import { buildSwapTransaction } from "./tools/buildTx.js";
+import { simulateSwapTransaction, getTransactionStatus } from "./tools/execution.js";
 import { SUPPORTED_CHAINS } from "./constants/contracts.js";
 import { CHAIN_TOKENS } from "./constants/tokens.js";
 
@@ -135,17 +136,18 @@ server.tool(
 // 6. Cross-Chain Swap Plan
 server.tool(
   "zipzap_crosschain_quote",
-  "Plan cross-chain multi-hop swaps across Kaia, Base, Arbitrum, and Solana with atomic routing and relayer tracking.",
+  "Fetch a live cross-chain swap quote (via Across/Stargate/LI.FI) or multi-hop bridge plan across Kaia, Base, Arbitrum, and Solana.",
   {
     sourceChainId: z.number().describe("Source Chain ID"),
     destinationChainId: z.number().describe("Destination Chain ID"),
     tokenIn: z.string().describe("Input token symbol or address"),
     tokenOut: z.string().describe("Output token symbol or address"),
-    amountIn: z.string().describe("Amount to swap"),
+    amountIn: z.string().describe("Amount to swap (human format or atomic units)"),
+    fromAddress: z.string().optional().describe("Optional sender wallet address for executable bridge tx"),
   },
   async (params) => {
     try {
-      const plan = planCrossChainSwap(params);
+      const plan = await planCrossChainSwap(params);
       return {
         content: [{ type: "text", text: JSON.stringify(plan, null, 2) }],
       };
@@ -153,6 +155,56 @@ server.tool(
       return {
         isError: true,
         content: [{ type: "text", text: `Cross-chain quote error: ${err.message}` }],
+      };
+    }
+  }
+);
+
+// 7. Simulate Swap Transaction (Pre-flight Dry Run)
+server.tool(
+  "zipzap_simulate_swap",
+  "Dry-run a built EVM swap transaction (eth_call + gas estimation) or Solana VersionedTransaction before signing and broadcasting.",
+  {
+    chainId: z.number().describe("Chain ID (8453=Base, 8217=Kaia, 42161=Arbitrum, 101=Solana)"),
+    from: z.string().optional().describe("EVM sender wallet address"),
+    to: z.string().optional().describe("EVM ZipZapRouter address"),
+    data: z.string().optional().describe("EVM hex calldata from zipzap_build_swap_tx"),
+    value: z.string().optional().describe("EVM hex or decimal msg.value in wei"),
+    serializedSolanaTx: z.string().optional().describe("Base64 serialized Solana VersionedTransaction from zipzap_build_swap_tx"),
+  },
+  async (params) => {
+    try {
+      const result = await simulateSwapTransaction(params);
+      return {
+        content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+      };
+    } catch (err: any) {
+      return {
+        isError: true,
+        content: [{ type: "text", text: `Simulation error: ${err.message}` }],
+      };
+    }
+  }
+);
+
+// 8. Check Transaction Status & Decode SwapExecuted
+server.tool(
+  "zipzap_get_tx_status",
+  "Check on-chain confirmation status for an EVM or Solana swap transaction and decode ZipZapRouter SwapExecuted logs (actual output, fee charged, surplus captured).",
+  {
+    chainId: z.number().describe("Chain ID (8453=Base, 8217=Kaia, 42161=Arbitrum, 101=Solana)"),
+    txHash: z.string().describe("Transaction hash (0x... for EVM) or signature (base58 for Solana)"),
+  },
+  async (params) => {
+    try {
+      const status = await getTransactionStatus(params);
+      return {
+        content: [{ type: "text", text: JSON.stringify(status, null, 2) }],
+      };
+    } catch (err: any) {
+      return {
+        isError: true,
+        content: [{ type: "text", text: `Transaction status error: ${err.message}` }],
       };
     }
   }

@@ -27,9 +27,11 @@ Agents can run this MCP server via zero-hosting local execution:
 - `zipzap_get_chains`: Returns supported chains, router addresses, and RPCs.
 - `zipzap_get_tokens`: Returns token contracts and decimals for a given chainId.
 - `zipzap_get_wallet_balance`: Reads native and token balances via public RPCs.
-- `zipzap_get_quote`: Simulates split-routing and returns expected output and min output.
-- `zipzap_build_swap_tx`: Generates calldata for EVM ZipZapRouter.sol or serialized Solana VersionedTransaction.
-- `zipzap_crosschain_quote`: Returns bridge routing plans across EVM and Solana.
+- `zipzap_get_quote`: Queries live on-chain V3 QuoterV2 & V2 routers (EVM) or Jupiter v1 (Solana) with automatic split-routing.
+- `zipzap_build_swap_tx`: Generates executable calldata for EVM ZipZapRouter.sol (with live ERC-20 allowance check) or serialized Solana VersionedTransaction.
+- `zipzap_crosschain_quote`: Fetches live cross-chain bridge quotes (Across / Stargate / LI.FI) across EVM and Solana.
+- `zipzap_simulate_swap`: Dry-runs a built EVM (`eth_call` + gas estimate) or Solana (`simulateTransaction`) swap before signing.
+- `zipzap_get_tx_status`: Checks confirmation status and decodes `ZipZapRouter` `SwapExecuted` logs (actual output & surplus captured).
 
 ## On-Chain Contract Registry
 - Kaia Router: 0x49d20E59Aa31Ba04F1FA6CD9a374A2d01A4228C6
