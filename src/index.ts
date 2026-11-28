@@ -22,7 +22,7 @@ const zipzap = new ZipZapClient({
 // Initialize ZipZap MCP Server
 const server = new McpServer({
   name: "@zipzap-protocol/mcp",
-  version: "1.2.1",
+  version: "1.3.0",
 });
 
 // ==========================================
@@ -120,17 +120,19 @@ server.tool(
   }
 );
 
-// 6. Cross-Chain Swap Quote
+// 6. Cross-Chain Swap Quote (4-Bridge Meta-Aggregator: Across, Relay, deBridge DLN, LI.FI)
 server.tool(
   "zipzap_crosschain_quote",
-  "Fetch a live cross-chain swap quote (Across / Stargate / LI.FI) across Kaia, Base, Arbitrum, and Solana.",
+  "Aggregate live cross-chain bridge quotes in parallel across Across Direct, Relay, deBridge DLN, and LI.FI (Layerswap, Stargate V2, Mayan Swift) with live fill-time ETAs, 2-way Kaia bridging, and EVM <-> Solana support.",
   {
-    sourceChainId: z.number().describe("Source Chain ID"),
+    sourceChainId: z.number().describe("Source Chain ID (8453=Base, 8217=Kaia, 42161=Arbitrum, 1=Ethereum, 56=BSC, 137=Polygon, 10=Optimism, 101=Solana)"),
     destinationChainId: z.number().describe("Destination Chain ID"),
-    tokenIn: z.string().describe("Input token symbol or address"),
+    tokenIn: z.string().describe("Input token symbol or address (e.g. 'USDC', 'ETH', 'USDt', 'SOL')"),
     tokenOut: z.string().describe("Output token symbol or address"),
-    amountIn: z.string().describe("Amount to swap (human format or atomic units)"),
+    amountIn: z.string().describe("Amount to swap (human format e.g. '10' or atomic units)"),
     fromAddress: z.string().optional().describe("Optional sender wallet address for executable bridge tx"),
+    toAddress: z.string().optional().describe("Optional destination recipient wallet address (e.g. Solana base58 address for EVM -> Solana)"),
+    priority: z.enum(["best_return", "fastest"]).optional().default("best_return").describe("Choose 'best_return' (highest output) or 'fastest' (shortest ETA)"),
   },
   async (params) => {
     try {
