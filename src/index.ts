@@ -8,6 +8,10 @@ const rpcUrls: Record<number, string> = {};
 if (process.env.KAIA_RPC) rpcUrls[8217] = process.env.KAIA_RPC;
 if (process.env.BASE_RPC) rpcUrls[8453] = process.env.BASE_RPC;
 if (process.env.ARBITRUM_RPC) rpcUrls[42161] = process.env.ARBITRUM_RPC;
+if (process.env.ETH_RPC) rpcUrls[1] = process.env.ETH_RPC;
+if (process.env.BSC_RPC) rpcUrls[56] = process.env.BSC_RPC;
+if (process.env.POLYGON_RPC) rpcUrls[137] = process.env.POLYGON_RPC;
+if (process.env.OPTIMISM_RPC) rpcUrls[10] = process.env.OPTIMISM_RPC;
 if (process.env.SOLANA_RPC) rpcUrls[101] = process.env.SOLANA_RPC;
 
 const zipzap = new ZipZapClient({
@@ -18,7 +22,7 @@ const zipzap = new ZipZapClient({
 // Initialize ZipZap MCP Server
 const server = new McpServer({
   name: "@zipzap-protocol/mcp",
-  version: "1.2.0",
+  version: "1.2.1",
 });
 
 // ==========================================
@@ -70,9 +74,9 @@ server.tool(
 // 4. Get Swap Quote (Multi-DEX + 2-Hop + Split Routing)
 server.tool(
   "zipzap_get_quote",
-  "Fetch the optimal multi-DEX & multi-hop split swap quote across EVM (Uniswap V3, Aerodrome, Camelot V2, SushiSwap, BaseSwap, DragonSwap V2/V3) or Solana (Raydium, Orca, Meteora, Phoenix). 0.00% upfront protocol fee.",
+  "Fetch the optimal multi-DEX & multi-hop split swap quote across 8 chains & 25+ DEXs (Uniswap V2/V3, PancakeSwap V2/V3, Aerodrome, Velodrome, Camelot V2, SushiSwap, QuickSwap, BiSwap, DragonSwap V2/V3, and Solana Jupiter v1). 0.00% upfront protocol fee.",
   {
-    chainId: z.number().describe("Chain ID (8453=Base, 8217=Kaia, 42161=Arbitrum, 101=Solana)"),
+    chainId: z.number().describe("Chain ID (8453=Base, 8217=Kaia, 42161=Arbitrum, 1=Ethereum, 56=BSC, 137=Polygon, 10=Optimism, 101=Solana)"),
     tokenIn: z.string().describe("Input token symbol or address/mint (e.g. 'ETH', 'KAIA', 'USDC', 'AERO', 'ARB', 'SOL')"),
     tokenOut: z.string().describe("Output token symbol or address/mint"),
     amountIn: z.string().describe("Amount to swap in human format (e.g. '0.1' or '100') or atomic units"),
